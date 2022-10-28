@@ -1,0 +1,67 @@
+{
+  "name": "reactjs",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@apollo/client": "^3.6.9",
+    "@fullcalendar/daygrid": "^5.10.1",
+    "@fullcalendar/interaction": "^5.10.1",
+    "@fullcalendar/list": "^5.10.1",
+    "@fullcalendar/moment": "^5.10.1",
+    "@fullcalendar/react": "^5.10.1",
+    "@fullcalendar/timegrid": "^5.10.1",
+    "@inovua/reactdatagrid-enterprise": "^4.20.1",
+    "@rjsf/core": "^4.2.0",
+    "@rjsf/semantic-ui": "^4.1.1",
+    "@semantic-ui-react/bootstrap": "^1.2.2",
+    "@testing-library/jest-dom": "^5.16.2",
+    "@testing-library/react": "^12.1.3",
+    "@testing-library/user-event": "^13.5.0",
+    "axios": "^0.26.0",
+    "fomantic-ui-css": "^2.8.8",
+    "graphql": "^16.6.0",
+    "moment": "^2.29.4",
+    "react": "^18.2.0",
+    "react-data-grid": "^7.0.0-beta.13",
+    "react-dom": "^18.2.0",
+    "react-jsonschema-form": "^1.8.1",
+    "react-redux": "^7.2.8",
+    "react-router-dom": "^6.2.1",
+    "react-scripts": "5.0.0",
+    "redux": "^4.1.2",
+    "redux-devtools-extension": "^2.13.9",
+    "redux-thunk": "^2.4.1",
+    "semantic-ui-css": "^2.4.1",
+    "semantic-ui-react": "^2.1.2",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "proxy": "http://localhost:5000/",
+  "devDependencies": {
+    "prettier": "2.6.2",
+    "react-intl": "^5.24.7"
+  }
+}
