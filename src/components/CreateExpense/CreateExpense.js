@@ -5,7 +5,7 @@ import {
 } from '@apollo/client'
 import { withTheme } from '@rjsf/core'
 import { Theme as SemanticUITheme } from '@rjsf/semantic-ui'
-import { expType, frequencyType } from '../appConst'
+import { expType, frequencyType } from '../../appConst'
 
 const Form = withTheme(SemanticUITheme)
 

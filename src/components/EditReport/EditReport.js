@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useMutation, gql } from '@apollo/client'
 import { withTheme } from '@rjsf/core'
 import { Theme as SemanticUITheme } from '@rjsf/semantic-ui'
-import { isEmpty } from "./../Utils";
+import { isEmpty } from "../../Utils";
 
 const Form = withTheme(SemanticUITheme)
 
