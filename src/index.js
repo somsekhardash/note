@@ -1,13 +1,12 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import AdminApp from './AdminApp'
+import { AdminHome } from './pages/AdminHome/AdminHome'
 import {ErrorBoundary} from './ErrorBoundary'
 import './index.css'
 import {
     ApolloClient,
     InMemoryCache,
     ApolloProvider,
-    useQuery,
     gql,
 } from '@apollo/client'
 
@@ -25,7 +24,8 @@ extend type CreateReportInput {
     description: String,
     paidDate: String,
     nextDate: String,
-    type: String
+    type: String,
+    isCompleted: Boolean
 }
 extend type UpdateReportInput {
     data: CreateReportInput,
@@ -43,7 +43,9 @@ const client = new ApolloClient({
 ReactDOM.render(
     <ErrorBoundary>
         <ApolloProvider client={client}>
-            <AdminApp />
+            <React.StrictMode>
+                <AdminHome />
+            </React.StrictMode>
         </ApolloProvider>
     </ErrorBoundary>,
     document.getElementById('root')

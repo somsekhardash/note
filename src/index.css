@@ -12,6 +12,10 @@ code {
     monospace;
 }
 
+.flex{
+  display: flex;
+}
+
 .demo-app-main {
   width: 900px;
   height: 500px;

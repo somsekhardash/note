@@ -614,7 +614,7 @@ const columns = [
   }
 ];
 
-const DataGrid = () => {
+export const DataGrid = () => {
   return (
     <div>
       <h3>Filterable DataGrid with (multi) select filter</h3>
@@ -630,4 +630,4 @@ const DataGrid = () => {
   );
 }
 
-export default () => <DataGrid />
+// export default () => <DataGrid />
