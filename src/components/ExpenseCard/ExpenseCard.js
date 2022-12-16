@@ -1,9 +1,9 @@
 import React from 'react'
 import { Card, Button } from 'semantic-ui-react'
 
-export function ExpenseCard({expense, onSelect, onAction}) {
+export function ExpenseCard({expense, onSelect, onAction, className}) {
     return (
-        <div className='expense-card'>
+        <div className={`${className} expense-card`}>
             <Card onClick={onSelect}>
                 <Card.Content>
                     <Card.Header content={expense.title} />

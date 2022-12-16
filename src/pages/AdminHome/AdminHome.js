@@ -1,16 +1,15 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useQuery, gql } from '@apollo/client'
 import { Button, Modal } from 'semantic-ui-react'
 import { withTheme } from '@rjsf/core'
 import { Theme as SemanticUITheme } from '@rjsf/semantic-ui'
 import { Card } from 'semantic-ui-react'
-import { DataGrid } from '../../components/DataGrid/DataGrid'
-import { expType, frequencyType, monthTypes, yearTypes } from './../../appConst'
+import { frequencyType, monthTypes, yearsMap, yearTypes } from './../../appConst'
 import { CreateExpense } from '../../components/CreateExpense/CreateExpense'
 import { CreateReport } from '../../components/CreateReport/CreateReport'
 import { EditReport } from '../../components/EditReport/EditReport'
 import { ReportCard } from './../../components/ReportCard/ReportCard'
-import { ExpenseCard } from "./../../components/ExpenseCard/ExpenseCard";
+import { ExpenseCard } from './../../components/ExpenseCard/ExpenseCard'
 import './AdminHome.css'
 
 const Form = withTheme(SemanticUITheme)
@@ -52,11 +51,12 @@ const Fetch_Reports = gql`
 export function AdminHome() {
     const [openCreateReport, setOpenCreateReport] = useState(false)
     const [openCreateExpense, setOpenCreateExpense] = useState(false)
-    const [filteredReport, setTheFilteredReport] = useState(null)
     const [selectedReport, setSelectedReport] = useState(null)
     const [editSelectReport, setEditSelectReport] = useState(null)
-    const [filteredExpense, setTheFilteredExpense] = useState(null)
-
+    const [reportWithFrequency, setReportWithFrequency] = useState([])
+    const [reportFilter, setReportFilter] = useState({ keys: ["lastYear", "lastMonth"], values: [new Date().getFullYear(), new Date().getMonth()+1]})
+    const [expenseFilter, setExpenseFilter] = useState({ keys: ["frequency"], values: ["MONTHLY"] })
+    const [bingoFilteredApplications, setBingoFilteredApplications] = useState([])
 
     const {
         loading: fetchExpensesLoader,
@@ -76,49 +76,37 @@ export function AdminHome() {
     })
     const reportsData = fetchReportsData?.fetchReports?.data
 
-    const makeTheCall2 = (e) => {
-        // plzFetchReports({
-        //     type: e.formData.type,
-        //     month: e.formData.filterDate,
-        // })
+    useEffect(() => {
+        if (reportsData?.length && expensesData?.length) {
+            const reportsWithFrequency = reportsData.map((report) => {
+                const expenseResult = expensesData.find((expense) => {
+                    return report.type === expense.title
+                })
+                return {
+                    ...report,
+                    frequency: expenseResult.frequency,
+                    nextYear: new Date(parseInt(report.nextDate)).getFullYear(),
+                    nextMonth:
+                        new Date(parseInt(report.nextDate)).getMonth() + 1,
+                    lastMonth:
+                        new Date(parseInt(report.paidDate)).getMonth() + 1,
+                    lastYear: new Date(parseInt(report.paidDate)).getFullYear(),
+                }
+            })
+            setReportWithFrequency([...reportsWithFrequency])
+        }
+    }, [reportsData, expensesData])
+
+    const setFilteredExpenses = (e) => {
         const keys = Object.keys(e.formData)
         const values = Object.values(e.formData)
-
-        const filteredResult = expensesData.filter(function (e) {
-            return keys.every(function (a) {
-                return values.includes(e[a])
-            })
-        })
-
-
-        setTheFilteredExpense([...filteredResult]);
+        setExpenseFilter({ keys, values })
     }
 
     const setFilteredReport = (e) => {
-        const reportsWithFrequency = reportsData.map((report) => {
-            const expenseResult = expensesData.find((expense) => {
-                return report.type === expense.title
-            })
-            return {
-                ...report,
-                frequency: expenseResult.frequency,
-                nextYear: new Date(parseInt(report.nextDate)).getFullYear(),
-                nextMonth: new Date(parseInt(report.nextDate)).getMonth() + 1,
-                lastMonth: new Date(parseInt(report.paidDate)).getMonth() + 1,
-                lastYear: new Date(parseInt(report.paidDate)).getFullYear(),
-            }
-        })
-
         const keys = Object.keys(e.formData)
         const values = Object.values(e.formData)
-
-        const filteredResult = reportsWithFrequency.filter(function (e) {
-            return keys.every(function (a) {
-                return values.includes(e[a])
-            })
-        })
-
-        setTheFilteredReport([...filteredResult])
+        setReportFilter({ keys, values })
     }
 
     const makeTheCall3 = (nodeType) => {
@@ -129,37 +117,16 @@ export function AdminHome() {
     }
 
     const onExpenseAction = (node) => {
-        setOpenCreateReport(true);
+        setOpenCreateReport(true)
+        const {_id, ...expanceObj} = node;
         setSelectedReport({
-            ...node,
+            ...expanceObj,
             type: node.title,
         })
     }
 
-    // const createNewReport = (node) => {
-    //     setOpenCreateReport(true)
-    //     setSelectedReport(node)
-    // }
-
     if (fetchExpensesLoader || fetchReportsLoader) return <p>Loading...</p>
     if (fetchExpensesError || fetchReportsError) return <p>...Error...</p>
-
-    // const reportSchema = {
-    //     title: 'Report Create',
-    //     type: 'object',
-    //     required: ['type'],
-    //     properties: {
-    //         type: {
-    //             type: 'string',
-    //             enum: expensesData.map((node, index) => node.title),
-    //         },
-    //         amount: { type: 'number' },
-    //         description: { type: 'string' },
-    //         paidDate: { type: 'string' },
-    //         nextDate: { type: 'string' },
-    //         isCompleted: { type: 'boolean' },
-    //     },
-    // }
 
     const filterSchma = {
         title: 'Filter Expense',
@@ -171,8 +138,8 @@ export function AdminHome() {
             },
             frequency: {
                 type: 'string',
-                enum: [...Object.values(frequencyType)],
-            }
+                enum: [...Object.values(frequencyType)]
+            },
         },
     }
 
@@ -195,8 +162,33 @@ export function AdminHome() {
         },
     }
 
+    const filteredExpenseData = [
+        ...expensesData.filter(function (e) {
+            return expenseFilter.keys.every(function (a) {
+                return expenseFilter.values.includes(e[a])
+            })
+        }),
+    ];
+
+    const filteredReportData = [
+        ...reportWithFrequency.filter(function (e) {
+            return reportFilter.keys.every(function (a) {
+                return reportFilter.values.includes(e[a])
+            })
+        }),
+    ];
+
+    const filterTheApplications = () => {
+        const filteredExpenseDataTypes = [...filteredExpenseData.map(expense => expense.title)];
+        const filteredReportDataTypes = [...filteredReportData.map(report => report.type)];
+        const som = filteredExpenseDataTypes.filter((expense)=> {
+            return !filteredReportDataTypes.includes(expense)
+        });
+        setBingoFilteredApplications([...som]);
+    }
+
     return (
-        <div className='admin-home'>
+        <div className="admin-home">
             <div className="admin-wrapper">
                 <Modal
                     onClose={() => setOpenCreateExpense(false)}
@@ -231,12 +223,13 @@ export function AdminHome() {
                     className="admin-form filter-expense"
                     schema={filterSchma}
                     onChange={() => {}}
-                    onSubmit={(e) => makeTheCall2(e)}
+                    onSubmit={(e) => setFilteredExpenses(e)}
                     onError={() => {}}
                 />
+                <Button onClick={()=> filterTheApplications()}>Bingo!!!</Button>
             </div>
             <div className="admin-panel">
-                <div className='reports-list data-list'>
+                {/* <div className="reports-list data-list">
                     <Card>
                         <Card.Content>
                             <Card.Header>Recent Reports</Card.Header>
@@ -257,8 +250,8 @@ export function AdminHome() {
                             </Card.Group>
                         </Card.Content>
                     </Card>
-                </div>    
-                <div className='expense-list data-list'>
+                </div>
+                <div className="expense-list data-list">
                     <Card>
                         <Card.Content>
                             <Card.Header>Recent Expenses</Card.Header>
@@ -267,53 +260,59 @@ export function AdminHome() {
                             <Card.Group className="reports-stack">
                                 {expensesData &&
                                     expensesData.map((node, index) => (
-                                       <ExpenseCard key={index} expense={node} onAction={onExpenseAction}/>
-                                    ))}
-                            </Card.Group>
-                        </Card.Content>
-                    </Card>
-                </div>
-                    {/* <DataGrid /> */}
-                <div className='expense-list data-list'>
-                    <Card>
-                        <Card.Content>
-                            <Card.Header>Filtered Reports</Card.Header>
-                        </Card.Content>
-                        <Card.Content>
-                            <Card.Group>
-                                {filteredReport &&
-                                    filteredReport.map((node, index) => (
-                                        <ReportCard
+                                        <ExpenseCard
                                             key={index}
-                                            report={node}
-                                            onAction={makeTheCall3}
-                                        />
-                                    ))}
-                            </Card.Group>
-                        </Card.Content>
-                    </Card>
-                </div>
-
-                
-                <div className='expense-list data-list'>
-                    <Card>
-                        <Card.Content>
-                            <Card.Header>Filtered Expenses</Card.Header>
-                        </Card.Content>
-                        <Card.Content>
-                            <Card.Group>
-                                {filteredExpense &&
-                                    filteredExpense.map((node, index) => (
-                                        <ExpenseCard key={index} 
-                                            expense={node} 
+                                            expense={node}
                                             onAction={onExpenseAction}
                                         />
                                     ))}
                             </Card.Group>
                         </Card.Content>
                     </Card>
+                </div> */}
+                {/* <DataGrid /> */}
+                <div className="expense-list data-list">
+                    <Card>
+                        <Card.Content>
+                            <Card.Header>Filtered Reports</Card.Header>
+                        </Card.Content>
+                        <Card.Content>
+                            <Card.Group>
+                                {[...filteredReportData].map((node, index) => {
+                                    return (
+                                        <ReportCard
+                                            key={index}
+                                            report={node}
+                                            onAction={makeTheCall3}
+                                        />
+                                    )
+                                })}
+                            </Card.Group>
+                        </Card.Content>
+                    </Card>
                 </div>
 
+                <div className="expense-list data-list">
+                    <Card>
+                        <Card.Content>
+                            <Card.Header>Filtered Expenses</Card.Header>
+                        </Card.Content>
+                        <Card.Content>
+                            <Card.Group>
+                                {[...filteredExpenseData].map((node, index) => {
+                                    return (
+                                        <ExpenseCard
+                                            key={index}
+                                            expense={node}
+                                            onAction={onExpenseAction}
+                                            className={bingoFilteredApplications.includes(node.title) ? 'bg-blue' : ''}
+                                        />
+                                    )
+                                })}
+                            </Card.Group>
+                        </Card.Content>
+                    </Card>
+                </div>
 
                 <div className="edit-panel">
                     <Card>
@@ -321,11 +320,11 @@ export function AdminHome() {
                             <Card.Header>Edit Panel</Card.Header>
                         </Card.Content>
                         <Card.Content>
-                        <EditReport
-                            reportData={editSelectReport}
-                            expensesData={expensesData}
-                        />
-                    </Card.Content>
+                            <EditReport
+                                reportData={editSelectReport}
+                                expensesData={expensesData}
+                            />
+                        </Card.Content>
                     </Card>
                 </div>
             </div>

@@ -36,7 +36,7 @@ export function EditReport({ expensesData, reportData }) {
         todayDate = new Date(parseInt(reportData.paidDate));
     }
     const reportSchema = {
-        title: 'Report Create',
+        title: 'Report Edit',
         type: 'object',
         required: ['type'],
         properties: {

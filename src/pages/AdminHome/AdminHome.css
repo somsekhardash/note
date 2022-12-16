@@ -8,3 +8,7 @@
     justify-content: space-evenly;
     margin-top: 100px;
 }
+
+.bg-blue {
+    border: 2px solid blue;
+}
