@@ -4,7 +4,12 @@ import { Button, Modal } from 'semantic-ui-react'
 import { withTheme } from '@rjsf/core'
 import { Theme as SemanticUITheme } from '@rjsf/semantic-ui'
 import { Card } from 'semantic-ui-react'
-import { frequencyType, monthTypes, yearsMap, yearTypes } from './../../appConst'
+import {
+    frequencyType,
+    monthTypes,
+    yearsMap,
+    yearTypes,
+} from './../../appConst'
 import { CreateExpense } from '../../components/CreateExpense/CreateExpense'
 import { CreateReport } from '../../components/CreateReport/CreateReport'
 import { EditReport } from '../../components/EditReport/EditReport'
@@ -16,7 +21,7 @@ const Form = withTheme(SemanticUITheme)
 
 const Fetch_Expenses = gql`
     query {
-        fetchExpenses(type: "DEBIT", month: "12") {
+        fetchExpenses(frequency: "MONTHLY") {
             success
             data {
                 title
@@ -41,6 +46,7 @@ const Fetch_Reports = gql`
                 isCompleted
                 nextDate
                 paidDate
+                expenseId
                 amount
                 _id
             }
@@ -54,9 +60,17 @@ export function AdminHome() {
     const [selectedReport, setSelectedReport] = useState(null)
     const [editSelectReport, setEditSelectReport] = useState(null)
     const [reportWithFrequency, setReportWithFrequency] = useState([])
-    const [reportFilter, setReportFilter] = useState({ keys: ["lastYear", "lastMonth"], values: [new Date().getFullYear(), new Date().getMonth()+1]})
-    const [expenseFilter, setExpenseFilter] = useState({ keys: ["frequency"], values: ["MONTHLY"] })
-    const [bingoFilteredApplications, setBingoFilteredApplications] = useState([])
+    const [reportFilter, setReportFilter] = useState({
+        keys: ['lastYear', 'lastMonth'],
+        values: [new Date().getFullYear(), new Date().getMonth() + 1],
+    })
+    const [expenseFilter, setExpenseFilter] = useState({
+        keys: ['frequency'],
+        values: ['MONTHLY'],
+    })
+    const [bingoFilteredApplications, setBingoFilteredApplications] = useState(
+        []
+    )
 
     const {
         loading: fetchExpensesLoader,
@@ -76,26 +90,26 @@ export function AdminHome() {
     })
     const reportsData = fetchReportsData?.fetchReports?.data
 
-    useEffect(() => {
-        if (reportsData?.length && expensesData?.length) {
-            const reportsWithFrequency = reportsData.map((report) => {
-                const expenseResult = expensesData.find((expense) => {
-                    return report.type === expense.title
-                })
-                return {
-                    ...report,
-                    frequency: expenseResult.frequency,
-                    nextYear: new Date(parseInt(report.nextDate)).getFullYear(),
-                    nextMonth:
-                        new Date(parseInt(report.nextDate)).getMonth() + 1,
-                    lastMonth:
-                        new Date(parseInt(report.paidDate)).getMonth() + 1,
-                    lastYear: new Date(parseInt(report.paidDate)).getFullYear(),
-                }
-            })
-            setReportWithFrequency([...reportsWithFrequency])
-        }
-    }, [reportsData, expensesData])
+    // useEffect(() => {
+    //     if (reportsData?.length && expensesData?.length) {
+    //         const reportsWithFrequency = reportsData.map((report) => {
+    //             const expenseResult = expensesData.find((expense) => {
+    //                 return report.type === expense.title
+    //             })
+    //             return {
+    //                 ...report,
+    //                 frequency: expenseResult.frequency,
+    //                 nextYear: new Date(parseInt(report.nextDate)).getFullYear(),
+    //                 nextMonth:
+    //                     new Date(parseInt(report.nextDate)).getMonth() + 1,
+    //                 lastMonth:
+    //                     new Date(parseInt(report.paidDate)).getMonth() + 1,
+    //                 lastYear: new Date(parseInt(report.paidDate)).getFullYear(),
+    //             }
+    //         })
+    //         setReportWithFrequency([...reportsWithFrequency])
+    //     }
+    // }, [reportsData, expensesData])
 
     const setFilteredExpenses = (e) => {
         const keys = Object.keys(e.formData)
@@ -118,7 +132,7 @@ export function AdminHome() {
 
     const onExpenseAction = (node) => {
         setOpenCreateReport(true)
-        const {_id, ...expanceObj} = node;
+        const { _id, ...expanceObj } = node
         setSelectedReport({
             ...expanceObj,
             type: node.title,
@@ -138,7 +152,7 @@ export function AdminHome() {
             },
             frequency: {
                 type: 'string',
-                enum: [...Object.values(frequencyType)]
+                enum: [...Object.values(frequencyType)],
             },
         },
     }
@@ -168,7 +182,7 @@ export function AdminHome() {
                 return expenseFilter.values.includes(e[a])
             })
         }),
-    ];
+    ]
 
     const filteredReportData = [
         ...reportWithFrequency.filter(function (e) {
@@ -176,15 +190,19 @@ export function AdminHome() {
                 return reportFilter.values.includes(e[a])
             })
         }),
-    ];
+    ]
 
     const filterTheApplications = () => {
-        const filteredExpenseDataTypes = [...filteredExpenseData.map(expense => expense.title)];
-        const filteredReportDataTypes = [...filteredReportData.map(report => report.type)];
-        const som = filteredExpenseDataTypes.filter((expense)=> {
+        const filteredExpenseDataTypes = [
+            ...filteredExpenseData.map((expense) => expense.title),
+        ]
+        const filteredReportDataTypes = [
+            ...filteredReportData.map((report) => report.type),
+        ]
+        const som = filteredExpenseDataTypes.filter((expense) => {
             return !filteredReportDataTypes.includes(expense)
-        });
-        setBingoFilteredApplications([...som]);
+        })
+        setBingoFilteredApplications([...som])
     }
 
     return (
@@ -226,7 +244,9 @@ export function AdminHome() {
                     onSubmit={(e) => setFilteredExpenses(e)}
                     onError={() => {}}
                 />
-                <Button onClick={()=> filterTheApplications()}>Bingo!!!</Button>
+                <Button onClick={() => filterTheApplications()}>
+                    Bingo!!!
+                </Button>
             </div>
             <div className="admin-panel">
                 {/* <div className="reports-list data-list">
@@ -305,7 +325,13 @@ export function AdminHome() {
                                             key={index}
                                             expense={node}
                                             onAction={onExpenseAction}
-                                            className={bingoFilteredApplications.includes(node.title) ? 'bg-blue' : ''}
+                                            className={
+                                                bingoFilteredApplications.includes(
+                                                    node.title
+                                                )
+                                                    ? 'bg-blue'
+                                                    : ''
+                                            }
                                         />
                                     )
                                 })}
