@@ -12,7 +12,7 @@ import {
 import { RouteConfigExample } from './route'
 import { BrowserRouter as Router } from 'react-router-dom'
 import { setContext } from '@apollo/client/link/context'
-import { CookieMaker } from "./Utils";
+import { CookieMaker } from './Utils'
 
 const typeDefs = gql`
     extend type CreateExpensesInput {
@@ -39,7 +39,7 @@ const typeDefs = gql`
 
 const authLink = setContext((_, { headers }) => {
     // get the authentication token from local storage if it exists
-    const token = CookieMaker.readCookie('dashAccessCookie');
+    const token = CookieMaker.readCookie('dashAccessCookie')
     // return the headers to the context so httpLink can read them
     return {
         headers: {
@@ -50,7 +50,7 @@ const authLink = setContext((_, { headers }) => {
 })
 
 const httpLink = createHttpLink({
-    uri: 'http://localhost:8082/graphql',
+    uri: `${process.env.REACT_APP_BE_URL}/graphql`,
 })
 
 const client = new ApolloClient({

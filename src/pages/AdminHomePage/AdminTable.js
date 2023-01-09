@@ -17,10 +17,24 @@ const Create_Report = gql`
     }
 `
 
+const Update_Report = gql`
+    mutation UpdateReport($reportInput: UpdateReportInput) {
+        updateReport(reportInput: $reportInput) {
+            amount
+            description
+            paidDate
+            nextDate
+        }
+    }
+`
+
 export function AdminTable({ reports, month }) {
     const [createReport, { data, loading, error }] = useMutation(Create_Report)
+    const [
+        updateReport,
+        { data: updateDate, loading: updateLoader, error: updateError },
+    ] = useMutation(Update_Report)
     const createAReport = (param) => {
-        debugger
         if (param.title)
             createReport({
                 variables: {
@@ -36,6 +50,25 @@ export function AdminTable({ reports, month }) {
                 },
             })
         else alert('Error AdminTable')
+    }
+
+    const updateAReport = (param) => {
+        if (param.title)
+            updateReport({
+                variables: {
+                    reportInput: {
+                        findI: { _id: param.id },
+                        data: {
+                            title: param.title,
+                            amount: parseInt(param.amount),
+                            description: param.description,
+                            paidDate: param.paidDate || moment().format('L'),
+                            nextDate: param.nextDate || moment().format('L'),
+                            expenseId: param.expenseId || param.id,
+                        },
+                    },
+                },
+            })
     }
 
     const columns = [
@@ -97,6 +130,22 @@ export function AdminTable({ reports, month }) {
             },
             editable: true,
             type: 'date',
+        },
+        {
+            field: 'Edit',
+            headerName: 'EDIT',
+            width: 60,
+            renderCell: (params) => {
+                return (
+                    <Button
+                        circular
+                        onClick={() => updateAReport(params?.row)}
+                        color="facebook"
+                        icon="play"
+                        className="margin-top"
+                    />
+                )
+            },
         },
         { field: 'id', hide: true },
     ]

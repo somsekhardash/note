@@ -3,7 +3,6 @@ import { useQuery, gql } from '@apollo/client'
 import { Button, Modal } from 'semantic-ui-react'
 import { withTheme } from '@rjsf/core'
 import { Theme as SemanticUITheme } from '@rjsf/semantic-ui'
-import { Card } from 'semantic-ui-react'
 import {
     frequencyType,
     monthTypes,
@@ -12,9 +11,7 @@ import {
 } from './../../appConst'
 import { CreateExpense } from '../../components/CreateExpense/CreateExpense'
 import { CreateReport } from '../../components/CreateReport/CreateReport'
-import { EditReport } from '../../components/EditReport/EditReport'
-import { ReportCard } from './../../components/ReportCard/ReportCard'
-import { ExpenseCard } from './../../components/ExpenseCard/ExpenseCard'
+import { ExpenseTable } from './ExpenseTable'
 import './AdminHome.css'
 
 const Form = withTheme(SemanticUITheme)
@@ -36,42 +33,53 @@ const Fetch_Expenses = gql`
     }
 `
 
-const Fetch_Reports = gql`
-    query FetchReports($getAll: Boolean) {
-        fetchReports(getAll: $getAll) {
+const Fetch_One_Expenses = gql`
+    query FetchExpenses($title: String) {
+        fetchExpenses(title: $title) {
             success
             data {
-                description
+                title
                 type
-                isCompleted
-                nextDate
-                paidDate
-                expenseId
+                frequency
                 amount
+                startDate
+                endDate
                 _id
+                reports {
+                    description
+                    title
+                    amount
+                    _id
+                    paidDate
+                    nextDate
+                }
             }
         }
     }
 `
 
+// const Fetch_Reports = gql`
+//     query FetchReports($getAll: Boolean) {
+//         fetchReports(getAll: $getAll) {
+//             success
+//             data {
+//                 description
+//                 type
+//                 isCompleted
+//                 nextDate
+//                 paidDate
+//                 expenseId
+//                 amount
+//                 _id
+//             }
+//         }
+//     }
+// `
+
 export function AdminHome() {
     const [openCreateReport, setOpenCreateReport] = useState(false)
     const [openCreateExpense, setOpenCreateExpense] = useState(false)
     const [selectedReport, setSelectedReport] = useState(null)
-    const [editSelectReport, setEditSelectReport] = useState(null)
-    const [reportWithFrequency, setReportWithFrequency] = useState([])
-    const [reportFilter, setReportFilter] = useState({
-        keys: ['lastYear', 'lastMonth'],
-        values: [new Date().getFullYear(), new Date().getMonth() + 1],
-    })
-    const [expenseFilter, setExpenseFilter] = useState({
-        keys: ['frequency'],
-        values: ['MONTHLY'],
-    })
-    const [bingoFilteredApplications, setBingoFilteredApplications] = useState(
-        []
-    )
-
     const {
         loading: fetchExpensesLoader,
         error: fetchExpensesError,
@@ -79,83 +87,39 @@ export function AdminHome() {
     } = useQuery(Fetch_Expenses)
     const expensesData = fetchExpensesData?.fetchExpenses?.data
 
+    // const {
+    //     loading: fetchReportsLoader,
+    //     error: fetchReportsError,
+    //     data: fetchReportsData,
+    //     refetch: plzFetchReports,
+    // } = useQuery(Fetch_Reports, {
+    //     variables: { getAll: true },
+    //     notifyOnNetworkStatusChange: true,
+    // })
+    const title = null
     const {
-        loading: fetchReportsLoader,
-        error: fetchReportsError,
-        data: fetchReportsData,
-        refetch: plzFetchReports,
-    } = useQuery(Fetch_Reports, {
-        variables: { getAll: true },
+        loading: fetchOneExpenseLoader,
+        error: fetchOneExpenseError,
+        data: fetchOneOneExpenseData,
+        refetch: plzFetchOneExp,
+    } = useQuery(Fetch_One_Expenses, {
+        variables: { title },
         notifyOnNetworkStatusChange: true,
     })
-    const reportsData = fetchReportsData?.fetchReports?.data
+    const newFetchOneData = fetchOneOneExpenseData?.fetchExpenses?.data
 
-    // useEffect(() => {
-    //     if (reportsData?.length && expensesData?.length) {
-    //         const reportsWithFrequency = reportsData.map((report) => {
-    //             const expenseResult = expensesData.find((expense) => {
-    //                 return report.type === expense.title
-    //             })
-    //             return {
-    //                 ...report,
-    //                 frequency: expenseResult.frequency,
-    //                 nextYear: new Date(parseInt(report.nextDate)).getFullYear(),
-    //                 nextMonth:
-    //                     new Date(parseInt(report.nextDate)).getMonth() + 1,
-    //                 lastMonth:
-    //                     new Date(parseInt(report.paidDate)).getMonth() + 1,
-    //                 lastYear: new Date(parseInt(report.paidDate)).getFullYear(),
-    //             }
-    //         })
-    //         setReportWithFrequency([...reportsWithFrequency])
-    //     }
-    // }, [reportsData, expensesData])
-
-    const setFilteredExpenses = (e) => {
-        const keys = Object.keys(e.formData)
-        const values = Object.values(e.formData)
-        setExpenseFilter({ keys, values })
-    }
+    console.log(newFetchOneData, 'newFetchOneData')
 
     const setFilteredReport = (e) => {
         const keys = Object.keys(e.formData)
         const values = Object.values(e.formData)
-        setReportFilter({ keys, values })
-    }
-
-    const makeTheCall3 = (nodeType) => {
-        setOpenCreateReport(true)
-        setSelectedReport({
-            ...nodeType,
+        plzFetchOneExp({
+            title: values[0],
         })
     }
 
-    const onExpenseAction = (node) => {
-        setOpenCreateReport(true)
-        const { _id, ...expanceObj } = node
-        setSelectedReport({
-            ...expanceObj,
-            type: node.title,
-        })
-    }
-
-    if (fetchExpensesLoader || fetchReportsLoader) return <p>Loading...</p>
-    if (fetchExpensesError || fetchReportsError) return <p>...Error...</p>
-
-    const filterSchma = {
-        title: 'Filter Expense',
-        type: 'object',
-        properties: {
-            type: {
-                type: 'string',
-                enum: expensesData.map((node, index) => node.title),
-            },
-            frequency: {
-                type: 'string',
-                enum: [...Object.values(frequencyType)],
-            },
-        },
-    }
+    if (fetchExpensesLoader || fetchOneExpenseLoader) return <p>Loading...</p>
+    if (fetchExpensesError || fetchOneExpenseError) return <p>...Error...</p>
 
     const filterReport = {
         title: 'Filter Report',
@@ -174,35 +138,6 @@ export function AdminHome() {
             lastMonth: { type: 'number', oneOf: monthTypes },
             lastYear: { type: 'number', oneOf: yearTypes },
         },
-    }
-
-    const filteredExpenseData = [
-        ...expensesData.filter(function (e) {
-            return expenseFilter.keys.every(function (a) {
-                return expenseFilter.values.includes(e[a])
-            })
-        }),
-    ]
-
-    const filteredReportData = [
-        ...reportWithFrequency.filter(function (e) {
-            return reportFilter.keys.every(function (a) {
-                return reportFilter.values.includes(e[a])
-            })
-        }),
-    ]
-
-    const filterTheApplications = () => {
-        const filteredExpenseDataTypes = [
-            ...filteredExpenseData.map((expense) => expense.title),
-        ]
-        const filteredReportDataTypes = [
-            ...filteredReportData.map((report) => report.type),
-        ]
-        const som = filteredExpenseDataTypes.filter((expense) => {
-            return !filteredReportDataTypes.includes(expense)
-        })
-        setBingoFilteredApplications([...som])
     }
 
     return (
@@ -237,122 +172,24 @@ export function AdminHome() {
                     onSubmit={(e) => setFilteredReport(e)}
                     onError={() => {}}
                 />
-                <Form
-                    className="admin-form filter-expense"
-                    schema={filterSchma}
-                    onChange={() => {}}
-                    onSubmit={(e) => setFilteredExpenses(e)}
-                    onError={() => {}}
-                />
-                <Button onClick={() => filterTheApplications()}>
-                    Bingo!!!
-                </Button>
             </div>
             <div className="admin-panel">
-                {/* <div className="reports-list data-list">
-                    <Card>
-                        <Card.Content>
-                            <Card.Header>Recent Reports</Card.Header>
-                        </Card.Content>
-                        <Card.Content>
-                            <Card.Group className="reports-stack">
-                                {reportsData &&
-                                    reportsData.map((node, index) => (
-                                        <ReportCard
-                                            key={index}
-                                            report={node}
-                                            onAction={makeTheCall3}
-                                            onSelect={() => {
-                                                setEditSelectReport({ ...node })
-                                            }}
-                                        />
-                                    ))}
-                            </Card.Group>
-                        </Card.Content>
-                    </Card>
-                </div>
-                <div className="expense-list data-list">
-                    <Card>
-                        <Card.Content>
-                            <Card.Header>Recent Expenses</Card.Header>
-                        </Card.Content>
-                        <Card.Content>
-                            <Card.Group className="reports-stack">
-                                {expensesData &&
-                                    expensesData.map((node, index) => (
-                                        <ExpenseCard
-                                            key={index}
-                                            expense={node}
-                                            onAction={onExpenseAction}
-                                        />
-                                    ))}
-                            </Card.Group>
-                        </Card.Content>
-                    </Card>
-                </div> */}
-                {/* <DataGrid /> */}
-                <div className="expense-list data-list">
-                    <Card>
-                        <Card.Content>
-                            <Card.Header>Filtered Reports</Card.Header>
-                        </Card.Content>
-                        <Card.Content>
-                            <Card.Group>
-                                {[...filteredReportData].map((node, index) => {
-                                    return (
-                                        <ReportCard
-                                            key={index}
-                                            report={node}
-                                            onAction={makeTheCall3}
-                                        />
-                                    )
-                                })}
-                            </Card.Group>
-                        </Card.Content>
-                    </Card>
-                </div>
-
-                <div className="expense-list data-list">
-                    <Card>
-                        <Card.Content>
-                            <Card.Header>Filtered Expenses</Card.Header>
-                        </Card.Content>
-                        <Card.Content>
-                            <Card.Group>
-                                {[...filteredExpenseData].map((node, index) => {
-                                    return (
-                                        <ExpenseCard
-                                            key={index}
-                                            expense={node}
-                                            onAction={onExpenseAction}
-                                            className={
-                                                bingoFilteredApplications.includes(
-                                                    node.title
-                                                )
-                                                    ? 'bg-blue'
-                                                    : ''
-                                            }
-                                        />
-                                    )
-                                })}
-                            </Card.Group>
-                        </Card.Content>
-                    </Card>
-                </div>
-
-                <div className="edit-panel">
-                    <Card>
-                        <Card.Content>
-                            <Card.Header>Edit Panel</Card.Header>
-                        </Card.Content>
-                        <Card.Content>
-                            <EditReport
-                                reportData={editSelectReport}
-                                expensesData={expensesData}
-                            />
-                        </Card.Content>
-                    </Card>
-                </div>
+                {newFetchOneData && (
+                    <div className="">
+                        <h3>Filtered Data</h3>
+                        {newFetchOneData.map((oneData, index) => {
+                            return (
+                                <div key={index}>
+                                    {console.log(oneData)}
+                                    {oneData?.title}
+                                    {oneData?.type}
+                                    {oneData?.frequency}
+                                    {<ExpenseTable data={oneData?.reports} />}
+                                </div>
+                            )
+                        })}
+                    </div>
+                )}
             </div>
         </div>
     )
