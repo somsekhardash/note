@@ -1,3 +1,5 @@
+import moment from 'moment'
+
 export const dateFormater = (date) => {
     return new Date(parseInt(date)).toLocaleDateString('en-US')
 }
@@ -38,8 +40,26 @@ export class CookieMaker {
         }
         return null
     }
-    
+
     static deleteCookie(name) {
         this.createCookie(name, '', -1)
     }
+}
+
+export function ConditionalRender(props) {
+    var output = null
+    if (props.shouldRender) output = props.children
+    return output
+}
+
+export function isCompleted({ report, month, year }) {
+    const rMonth = moment(parseInt(report.paidDate)).month() + 1
+    const rYear = moment(dateFormater(report.paidDate)).year()
+    if (
+        rMonth === parseInt(month) &&
+        rYear === parseInt(year) &&
+        report.isCompleted
+    )
+        return true
+    return false
 }

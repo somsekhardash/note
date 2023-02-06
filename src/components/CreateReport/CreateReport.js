@@ -24,7 +24,7 @@ const Create_Report = gql`
             isCompleted
         }
     }
-`;
+`
 
 const Update_Report = gql`
     mutation UpdateReport($reportInput: UpdateReportInput) {
@@ -36,72 +36,91 @@ const Update_Report = gql`
             isCompleted
         }
     }
-`;
+`
 
 export function CreateReport({ expensesData, reportData }) {
-    let todayDate = new Date();
-    if(reportData.paidDate) {
-        todayDate = new Date(parseInt(reportData.paidDate));
+    let todayDate = new Date()
+    if (reportData.paidDate) {
+        todayDate = new Date(parseInt(reportData.paidDate))
     }
     const reportSchema = {
         title: 'Report Create',
         type: 'object',
-        required: ['type'],
+        required: ['title'],
         properties: {
-            type: {
+            title: {
                 type: 'string',
-                enum: expensesData.map(
-                    (node, index) => node.title
-                ),
-                default: reportData.type
+                enum: expensesData.map((node, index) => node.title),
+                default: reportData.title,
             },
             amount: { type: 'number', default: reportData.amount },
-            description: { type: 'string', default:reportData.description },
-            paidDate: { type: 'string', default: todayDate.toISOString().slice(0,10) },
-            nextDate: { type: 'string', default: new Date(todayDate.getFullYear(), todayDate.getMonth()+1, todayDate.getDate()).toISOString().slice(0,10) },
+            description: { type: 'string', default: reportData.description },
+            paidDate: {
+                type: 'string',
+                default: todayDate.toISOString().slice(0, 10),
+            },
+            nextDate: {
+                type: 'string',
+                default: new Date(
+                    todayDate.getFullYear(),
+                    todayDate.getMonth() + 1,
+                    todayDate.getDate()
+                )
+                    .toISOString()
+                    .slice(0, 10),
+            },
             isCompleted: { type: 'boolean', default: reportData.isCompleted },
         },
     }
 
     const [createReport, { data, loading, error }] = useMutation(Create_Report)
-    const [updateReport, { data: updateDate, loading: updateLoader, error: updateError }] = useMutation(Update_Report)
-    
+    const [
+        updateReport,
+        { data: updateDate, loading: updateLoader, error: updateError },
+    ] = useMutation(Update_Report)
 
     const makeTheCall = (e) => {
-        if(reportData._id) {
-            alert('update');
+        if (reportData._id) {
+            alert('update')
             updateReport({
                 variables: {
-                    reportInput: {findI: {_id:reportData._id},  data: {...e.formData}},
+                    reportInput: {
+                        findI: { _id: reportData._id },
+                        data: { ...e.formData },
+                    },
                 },
-            });
+            })
             createReport({
                 variables: {
                     reportInput: {
                         ...e.formData,
                         isCompleted: false,
                         paidDate: e.formData.nextDate,
-                        nextDate: null
+                        nextDate: null,
                     },
                 },
-            });  
+            })
         } else {
-            alert('create');
-            createReport({
-                variables: {
-                    reportInput: e.formData,
-                },
-            });
+            alert('create')
+            debugger
+            // createReport({
+            //     variables: {
+            //         reportInput: {...e.formData, expenseId: expensesData.find(exp => exp.title === e.formData.title)._id},
+            //     },
+            // });
             createReport({
                 variables: {
                     reportInput: {
                         ...e.formData,
                         isCompleted: false,
-                        paidDate: e.formData.nextDate,
-                        nextDate: null
+                        paidDate: e.formData.paidDate,
+                        nextDate: e.formData.nextDate,
+                        expenseId: expensesData.find(
+                            (exp) => exp.title === e.formData.title
+                        )._id,
                     },
                 },
-            });
+            })
         }
     }
 

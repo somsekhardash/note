@@ -18,8 +18,8 @@ export function RouteConfigExample() {
             element: <SignUpPage />,
         },
         {
-            path: '/new-dashboard',
-            element: <AdminHomeLayout />,
+            path: '/search',
+            element: <HomepageLayout />,
             children: [
                 {
                     index: true,

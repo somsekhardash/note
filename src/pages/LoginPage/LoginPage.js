@@ -9,8 +9,9 @@ import {
     Segment,
 } from 'semantic-ui-react'
 import { useMutation, gql } from '@apollo/client'
-import { CookieMaker } from "./../../Utils";
-import { useNavigate } from "react-router-dom";
+import { CookieMaker } from './../../Utils'
+import { useNavigate } from 'react-router-dom'
+import { useAuth0 } from '@auth0/auth0-react'
 
 const User_Login = gql`
     mutation LoginUser($usersInput: RegisterUserInput) {
@@ -25,8 +26,8 @@ export const LoginPage = () => {
     const [loginUser, { data, loading, error }] = useMutation(User_Login)
     const [mobileNumber, setMobileNumber] = React.useState('')
     const [passWord, setPassWord] = React.useState('')
-    const navigate = useNavigate();
-    
+    const navigate = useNavigate()
+    const { loginWithRedirect, isAuthenticated, logout } = useAuth0()
     const makeTheCall = () => {
         loginUser({
             variables: {
@@ -39,16 +40,21 @@ export const LoginPage = () => {
     }
 
     React.useEffect(() => {
-      if(data) {
-        const cookie = new CookieMaker("dashAccessCookie", data.loginUser.accessToken);
-        cookie.createCookie();
-        navigate("/dashboard");
-      }
+        if (data) {
+            const cookie = new CookieMaker(
+                'dashAccessCookie',
+                data.loginUser.accessToken
+            )
+            cookie.createCookie()
+            navigate('/dashboard')
+        }
     }, [data])
-    
 
-    if(loading)
-      return <h2>Loading..</h2>;
+    React.useEffect(() => {
+        console.log(isAuthenticated)
+    }, [isAuthenticated])
+
+    if (loading) return <h2>Loading..</h2>
 
     return (
         <Grid
@@ -58,7 +64,8 @@ export const LoginPage = () => {
         >
             <Grid.Column style={{ maxWidth: 450 }}>
                 <Header as="h2" color="teal" textAlign="center">
-                    <Image src="/logo.png" /> Log-in to your account
+                    <Image src="/logo.png" /> Login into account{' '}
+                    {process.env.REACT_APP_NAME}
                 </Header>
                 <Form size="large">
                     <Segment stacked>
@@ -69,7 +76,7 @@ export const LoginPage = () => {
                             placeholder="E-mail address"
                             value={mobileNumber}
                             onChange={(e) => {
-                                setMobileNumber(e.target.value);
+                                setMobileNumber(e.target.value)
                             }}
                         />
                         <Form.Input
@@ -84,9 +91,25 @@ export const LoginPage = () => {
                             }}
                         />
 
-                        <Button color="teal" fluid size="large" onClick={() => makeTheCall()}>
-                            Login
-                        </Button>
+                        {isAuthenticated ? (
+                            <Button
+                                color="teal"
+                                fluid
+                                size="large"
+                                onClick={() => logout()}
+                            >
+                                logout
+                            </Button>
+                        ) : (
+                            <Button
+                                color="teal"
+                                fluid
+                                size="large"
+                                onClick={() => loginWithRedirect()}
+                            >
+                                Login
+                            </Button>
+                        )}
                     </Segment>
                 </Form>
                 <Message>

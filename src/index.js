@@ -13,6 +13,7 @@ import { RouteConfigExample } from './route'
 import { BrowserRouter as Router } from 'react-router-dom'
 import { setContext } from '@apollo/client/link/context'
 import { CookieMaker } from './Utils'
+import { Auth0Provider } from '@auth0/auth0-react'
 
 const typeDefs = gql`
     extend type CreateExpensesInput {
@@ -61,11 +62,20 @@ const client = new ApolloClient({
 
 ReactDOM.render(
     <ErrorBoundary>
-        <Router>
-            <ApolloProvider client={client}>
-                <RouteConfigExample />
-            </ApolloProvider>
-        </Router>
+        <Auth0Provider
+            domain="dev-ouzt5qe3gzjb3cpc.us.auth0.com"
+            clientId="4m8IhmCkEDQnUlZKVr5oaKz10eSF1zLC"
+            authorizationParams={{
+                redirect_uri: window.location.origin,
+            }}
+        >
+            <Router>
+                <ApolloProvider client={client}>
+                    <RouteConfigExample />
+                </ApolloProvider>
+            </Router>
+        </Auth0Provider>
+        ,
     </ErrorBoundary>,
     document.getElementById('root')
 )

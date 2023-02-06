@@ -8,7 +8,9 @@ import {
     Menu,
     Segment,
 } from 'semantic-ui-react'
-import { Outlet } from 'react-router-dom'
+import { Link, Outlet } from 'react-router-dom'
+import { useAuth0 } from '@auth0/auth0-react'
+import { HomePageWrapper } from './style'
 
 const HomepageHeading = ({ mobile }) => (
     <Container text>
@@ -44,59 +46,47 @@ HomepageHeading.propTypes = {
     mobile: PropTypes.bool,
 }
 
-class DesktopContainer extends Component {
-    state = {}
+function DesktopContainer() {
+    const fixed = true
+    const { loginWithRedirect } = useAuth0()
 
-    hideFixedMenu = () => this.setState({ fixed: false })
-    showFixedMenu = () => this.setState({ fixed: true })
-
-    render() {
-        const { fixed } = this.state
-
-        return (
-            <>
-                <Segment
-                    inverted
-                    textAlign="center"
-                    style={{ padding: '1em 0em' }}
-                    vertical
+    return (
+        <HomePageWrapper>
+            <Segment
+                inverted
+                textAlign="center"
+                style={{ padding: '2em 0em' }}
+                vertical
+            >
+                <Menu
+                    fixed={fixed ? 'top' : null}
+                    inverted={!fixed}
+                    pointing={!fixed}
+                    secondary={!fixed}
+                    size="large"
                 >
-                    <Menu
-                        fixed={fixed ? 'top' : null}
-                        inverted={!fixed}
-                        pointing={!fixed}
-                        secondary={!fixed}
-                        size="large"
-                    >
-                        <Container>
-                            <Menu.Item as="a" active>
-                                Home
-                            </Menu.Item>
-                            <Menu.Item as="a">Work</Menu.Item>
-                            <Menu.Item as="a">Company</Menu.Item>
-                            <Menu.Item as="a">Careers</Menu.Item>
-                            <Menu.Item position="right">
-                                <Button as="a" href="/" inverted={!fixed}>
-                                    Log in
-                                </Button>
-                                <Button
-                                    as="a"
-                                    href="/signup"
-                                    inverted={!fixed}
-                                    primary={fixed}
-                                    style={{ marginLeft: '0.5em' }}
-                                >
-                                    Sign Up
-                                </Button>
-                            </Menu.Item>
-                        </Container>
-                    </Menu>
-                    {/* <HomepageHeading /> */}
-                </Segment>
-                <Outlet />
-            </>
-        )
-    }
+                    <Container>
+                        <Menu.Item as="a" active>
+                            <Link to="/dashboard">Home</Link>
+                        </Menu.Item>
+                        <Menu.Item as="a">
+                            <Link to="/search">Search</Link>
+                        </Menu.Item>
+                        <Menu.Item position="right">
+                            <Button
+                                onClick={() => loginWithRedirect()}
+                                inverted={!fixed}
+                            >
+                                Log in
+                            </Button>
+                        </Menu.Item>
+                    </Container>
+                </Menu>
+                {/* <HomepageHeading /> */}
+            </Segment>
+            <Outlet />
+        </HomePageWrapper>
+    )
 }
 
 DesktopContainer.propTypes = {

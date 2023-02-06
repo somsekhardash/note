@@ -3,32 +3,9 @@ import { DataGrid } from '@mui/x-data-grid'
 import { Button } from 'semantic-ui-react'
 import { useMutation, gql } from '@apollo/client'
 import moment from 'moment'
+import { Create_Report, Update_Report } from './../../Querys'
 
-const Create_Report = gql`
-    mutation CreateReport($reportInput: CreateReportInput) {
-        createReport(reportInput: $reportInput) {
-            amount
-            description
-            paidDate
-            nextDate
-            isCompleted
-            expenseId
-        }
-    }
-`
-
-const Update_Report = gql`
-    mutation UpdateReport($reportInput: UpdateReportInput) {
-        updateReport(reportInput: $reportInput) {
-            amount
-            description
-            paidDate
-            nextDate
-        }
-    }
-`
-
-export function AdminTable({ reports, month }) {
+export function AdminTable({ reports, month, year }) {
     const [createReport, { data, loading, error }] = useMutation(Create_Report)
     const [
         updateReport,
@@ -73,18 +50,18 @@ export function AdminTable({ reports, month }) {
 
     const columns = [
         { field: 'title', headerName: 'Title', width: 250 },
-        { field: 'amount', headerName: 'Amount', width: 80, editable: true },
+        { field: 'amount', headerName: 'Amount', width: 100, editable: true },
         {
             field: 'description',
             headerName: 'Description',
-            width: 150,
+            width: 250,
             editable: true,
         },
-        { field: '__typename', headerName: 'Typename', width: 80 },
+        { field: '__typename', headerName: 'Typename', width: 100 },
         {
             field: 'isCompleted',
             headerName: 'IsCompleted',
-            width: 60,
+            width: 100,
             renderCell: (params) => {
                 return params.row.paidDate &&
                     (
@@ -112,7 +89,7 @@ export function AdminTable({ reports, month }) {
         {
             field: 'paidDate',
             headerName: 'LastPaidDate',
-            width: 150,
+            width: 100,
             valueGetter: ({ value }) => {
                 if (typeof value === 'string') return new Date(parseInt(value))
                 return value
@@ -123,7 +100,7 @@ export function AdminTable({ reports, month }) {
         {
             field: 'nextDate',
             headerName: 'NextPaymentDate',
-            width: 150,
+            width: 100,
             valueGetter: ({ value }) => {
                 if (typeof value === 'string') return new Date(parseInt(value))
                 return value
@@ -134,7 +111,7 @@ export function AdminTable({ reports, month }) {
         {
             field: 'Edit',
             headerName: 'EDIT',
-            width: 60,
+            width: 50,
             renderCell: (params) => {
                 return (
                     <Button
@@ -153,12 +130,41 @@ export function AdminTable({ reports, month }) {
     const res = reports.map((res) => {
         return { ...res, id: res._id }
     })
+
+    const checkForStatus = ({ row }) => {
+        var a = moment(parseInt(row.nextDate))
+        var b = moment()
+        if (month && year) {
+            var m = b.format('M')
+            var y = b.format('Y')
+            if (parseInt(m) > parseInt(month) || parseInt(y) > parseInt(year)) {
+                b = moment(
+                    moment(`${year}-${month}-1`)
+                        .endOf('month')
+                        .format('YYYY-MM-DD')
+                )
+            }
+        }
+
+        if (
+            row.paidDate &&
+            (moment(parseInt(row.paidDate)).month() + 1).toString() ===
+                month.toString() &&
+            row?.isCompleted
+        )
+            return 'green'
+
+        if (!!a.diff(b, 'days')) return a.diff(b, 'days') > 0 ? 'orange' : 'red'
+        return 'yellow'
+    }
+
     return (
         <div style={{ height: 800, width: '100%' }}>
             <DataGrid
                 experimentalFeatures={{ newEditingApi: true }}
                 rows={res}
                 columns={columns}
+                getRowClassName={(params) => checkForStatus(params)}
             />
         </div>
     )

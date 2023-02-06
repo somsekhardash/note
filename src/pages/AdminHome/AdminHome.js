@@ -18,7 +18,7 @@ const Form = withTheme(SemanticUITheme)
 
 const Fetch_Expenses = gql`
     query {
-        fetchExpenses(frequency: "MONTHLY") {
+        fetchExpenses(getAll: true) {
             success
             data {
                 title
@@ -180,7 +180,6 @@ export function AdminHome() {
                         {newFetchOneData.map((oneData, index) => {
                             return (
                                 <div key={index}>
-                                    {console.log(oneData)}
                                     {oneData?.title}
                                     {oneData?.type}
                                     {oneData?.frequency}

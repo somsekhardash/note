@@ -1,15 +1,11 @@
 # Fetching the latest node image on alpine linux
 FROM node:12-alpine as build
-
 # Declaring env
 ENV NODE_ENV production
-
 # Setting up the work directory
 WORKDIR /app
-
 # Copy the React App to the container
 COPY . /app
-
 # Installing dependencies
 RUN npm install --silent
 RUN npm install react-scripts@3.0.1 -g --silent
