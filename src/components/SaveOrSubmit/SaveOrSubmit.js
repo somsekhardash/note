@@ -10,6 +10,7 @@ import {
     reportUiSchema,
 } from './../../Querys'
 import moment from 'moment'
+import { useCallBank } from './../../CallBank'
 
 const Form = withTheme(SemanticUITheme)
 
@@ -21,15 +22,11 @@ function SaveOrSubmit({
     hideHeader,
     showModal,
 }) {
-    const [createReport, { data, loading, error }] = useMutation(Create_Report)
-    const [
-        updateReport,
-        { data: reportData, loading: reportLoader, error: reportError },
-    ] = useMutation(Update_Report)
+    const { CREATE_REPORT, UPDATE_REPORT } = useCallBank()
 
     const updateReportCall = (e) => {
         const formData = e.formData
-        updateReport({
+        UPDATE_REPORT.updateReport({
             variables: {
                 reportInput: {
                     findI: { _id: report._id },
@@ -50,7 +47,7 @@ function SaveOrSubmit({
     const createAReport = (e) => {
         const formData = e.formData
         if (formData.title)
-            createReport({
+            CREATE_REPORT.createReport({
                 variables: {
                     reportInput: {
                         title: formData.title,
@@ -67,7 +64,6 @@ function SaveOrSubmit({
     }
 
     const actionOnReport = (e) => {
-        debugger
         if (type === 'EDIT') {
             updateReportCall(e)
         } else {
@@ -94,13 +90,6 @@ function SaveOrSubmit({
                     onError={() => {}}
                 />
             </Modal.Content>
-
-            {/* <Modal.Actions>
-                <Button onClick={() => showModal(false)}>Cancel</Button>
-                <Button onClick={() => showModal(false)} positive>
-                    Ok
-                </Button>
-            </Modal.Actions> */}
         </Modal>
     )
 }
