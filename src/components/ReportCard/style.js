@@ -1,6 +1,6 @@
 const { default: styled, css } = require('styled-components')
 
-const ReportCardContainer = styled.div.withConfig({
+export const ReportCardContainer = styled.div.withConfig({
     displayName: 'ReportCardContainer',
 })`
     margin-bottom: 1rem;
@@ -8,7 +8,3 @@ const ReportCardContainer = styled.div.withConfig({
         width: 100%;
     }
 `
-
-module.exports = {
-    ReportCardContainer,
-}
