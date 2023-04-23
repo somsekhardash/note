@@ -10,6 +10,12 @@ export const AdminHomePageContainer = styled.div.withConfig({
     displayName: 'AdminHomePageContainer',
 })`
     padding-top: 1rem;
+    .center-menu {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 `
 
 export const CardContainer = styled.div.withConfig({

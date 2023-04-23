@@ -14,6 +14,7 @@ import { BrowserRouter as Router } from 'react-router-dom'
 import { setContext } from '@apollo/client/link/context'
 import { CookieMaker } from './Utils'
 import { Auth0Provider } from '@auth0/auth0-react'
+import { AppProvider } from './Reducer'
 
 const typeDefs = gql`
     extend type CreateExpensesInput {
@@ -71,7 +72,9 @@ ReactDOM.render(
         >
             <Router>
                 <ApolloProvider client={client}>
-                    <RouteConfigExample />
+                    <AppProvider>
+                        <RouteConfigExample />
+                    </AppProvider>
                 </ApolloProvider>
             </Router>
         </Auth0Provider>

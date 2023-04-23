@@ -12,51 +12,10 @@ import {
 import { CreateExpense } from '../../components/CreateExpense/CreateExpense'
 import { CreateReport } from '../../components/CreateReport/CreateReport'
 import { ExpenseTable } from './ExpenseTable'
+import { useCallBank } from './../../CallBank'
 import './AdminHome.css'
 
 const Form = withTheme(SemanticUITheme)
-
-const Fetch_Expenses = gql`
-    query {
-        fetchExpenses(getAll: true) {
-            success
-            data {
-                title
-                type
-                frequency
-                amount
-                startDate
-                endDate
-                _id
-            }
-        }
-    }
-`
-
-const Fetch_One_Expenses = gql`
-    query FetchExpenses($title: String) {
-        fetchExpenses(title: $title) {
-            success
-            data {
-                title
-                type
-                frequency
-                amount
-                startDate
-                endDate
-                _id
-                reports {
-                    description
-                    title
-                    amount
-                    _id
-                    paidDate
-                    nextDate
-                }
-            }
-        }
-    }
-`
 
 // const Fetch_Reports = gql`
 //     query FetchReports($getAll: Boolean) {
@@ -80,12 +39,11 @@ export function AdminHome() {
     const [openCreateReport, setOpenCreateReport] = useState(false)
     const [openCreateExpense, setOpenCreateExpense] = useState(false)
     const [selectedReport, setSelectedReport] = useState(null)
-    const {
-        loading: fetchExpensesLoader,
-        error: fetchExpensesError,
-        data: fetchExpensesData,
-    } = useQuery(Fetch_Expenses)
-    const expensesData = fetchExpensesData?.fetchExpenses?.data
+    const { FETCH_ONE_EXPENSE, FETCH_EXPENSES } = useCallBank()
+
+    FETCH_EXPENSES.fetchExpensesCall()
+
+    const expensesData = FETCH_EXPENSES.res?.data?.fetchExpenses?.data
 
     // const {
     //     loading: fetchReportsLoader,
@@ -96,30 +54,60 @@ export function AdminHome() {
     //     variables: { getAll: true },
     //     notifyOnNetworkStatusChange: true,
     // })
-    const title = null
-    const {
-        loading: fetchOneExpenseLoader,
-        error: fetchOneExpenseError,
-        data: fetchOneOneExpenseData,
-        refetch: plzFetchOneExp,
-    } = useQuery(Fetch_One_Expenses, {
-        variables: { title },
-        notifyOnNetworkStatusChange: true,
-    })
-    const newFetchOneData = fetchOneOneExpenseData?.fetchExpenses?.data
 
-    console.log(newFetchOneData, 'newFetchOneData')
+    // CREATE_REPORT.createReport({
+    //     variables: {
+    //         reportInput: {
+    //             ...e.formData,
+    //             isCompleted: false,
+    //             paidDate: e.formData.nextDate,
+    //             nextDate: null,
+    //         },
+    //     },
+    // })
+
+    const res = {
+        title: '',
+        frequency: '',
+    }
+    // const {
+    //     loading: fetchOneExpenseLoader,
+    //     error: fetchOneExpenseError,
+    //     data: fetchOneOneExpenseData,
+    //     refetch: plzFetchOneExp,
+    // } = useQuery(Fetch_One_Expenses, {
+    //     variables: res,
+    //     notifyOnNetworkStatusChange: true,
+    // })
+    FETCH_ONE_EXPENSE.fetchOneExpensesCall({
+        variables: res,
+    })
+
+    const newFetchOneData = FETCH_ONE_EXPENSE?.res?.data?.fetchExpenses?.data
+
+    console.log(FETCH_ONE_EXPENSE.res, 'newFetchOneData')
 
     const setFilteredReport = (e) => {
         const keys = Object.keys(e.formData)
         const values = Object.values(e.formData)
-        plzFetchOneExp({
-            title: values[0],
+        const fieldMap = {
+            type: 'title',
+            frequency: 'frequency',
+        }
+        FETCH_ONE_EXPENSE.fetchOneExpensesCall({
+            variables: {
+                [fieldMap[keys[0]]]: values[0],
+            },
         })
     }
 
-    if (fetchExpensesLoader || fetchOneExpenseLoader) return <p>Loading...</p>
-    if (fetchExpensesError || fetchOneExpenseError) return <p>...Error...</p>
+    if (
+        FETCH_EXPENSES.res.loading ||
+        FETCH_ONE_EXPENSE.res.fetchOneExpenseLoader
+    )
+        return <p>Loading...</p>
+    if (FETCH_EXPENSES.res.error || FETCH_ONE_EXPENSE.res.fetchOneExpenseError)
+        return <p>...Error...</p>
 
     const filterReport = {
         title: 'Filter Report',
@@ -147,7 +135,7 @@ export function AdminHome() {
                     onClose={() => setOpenCreateExpense(false)}
                     onOpen={() => setOpenCreateExpense(true)}
                     open={openCreateExpense}
-                    trigger={<Button>Create Expense Modal</Button>}
+                    trigger={<Button>Create Expense Modal1</Button>}
                 >
                     <CreateExpense />
                 </Modal>
@@ -165,6 +153,8 @@ export function AdminHome() {
                         }}
                     />
                 </Modal>
+            </div>
+            <div className="admin-panel">
                 <Form
                     className="admin-form filter-expense"
                     schema={filterReport}
@@ -172,8 +162,6 @@ export function AdminHome() {
                     onSubmit={(e) => setFilteredReport(e)}
                     onError={() => {}}
                 />
-            </div>
-            <div className="admin-panel">
                 {newFetchOneData && (
                     <div className="">
                         <h3>Filtered Data</h3>

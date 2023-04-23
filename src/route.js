@@ -6,6 +6,7 @@ import { useRoutes } from 'react-router-dom'
 import { AdminHomeLayout } from './pages/AdminHome/AdminHomeLayout'
 import { NotFound } from './pages/NotFoundPage/NotFound'
 import HomepageLayout from './pages/HomePage/HomePage'
+import { Dashboard } from './pages/NewDashboard/Dashboard'
 
 export function RouteConfigExample() {
     return useRoutes([
@@ -28,7 +29,17 @@ export function RouteConfigExample() {
             ],
         },
         {
-            path: `/dashboard`,
+            path: '/dashboard',
+            element: <HomepageLayout />,
+            children: [
+                {
+                    index: true,
+                    element: <Dashboard />,
+                },
+            ],
+        },
+        {
+            path: `/search-1`,
             element: <HomepageLayout />,
             children: [
                 {

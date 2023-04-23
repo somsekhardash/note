@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react'
-import { useMutation, gql } from '@apollo/client'
+import { useMutation, gql, useQuery } from '@apollo/client'
 
 const CREATE_REPORT = gql`
     mutation CreateReport($reportInput: CreateReportInput) {
@@ -38,7 +37,71 @@ const CREATE_EXPENSES = gql`
     }
 `
 
-export function useCallBank(props) {
+// const FETCH_REPORTS = gql`
+//     query FetchReports($month: String, $year: String) {
+//         fetchReports(month: $month, year: $year) {
+//             success
+//             data {
+//                 description
+//                 type
+//                 isCompleted
+//                 nextDate
+//                 expenseId
+//                 paidDate
+//                 amount
+//                 title
+//                 _id
+//             }
+//         }
+//     }
+// `
+
+const FETCH_EXPENSES = gql`
+    query FetchExpenses($frequency: String, $month: String, $year: String) {
+        fetchExpenses(frequency: $frequency, month: $month, year: $year) {
+            success
+            data {
+                title
+                type
+                frequency
+                amount
+                startDate
+                endDate
+                _id
+                reports {
+                    description
+                    title
+                    amount
+                    _id
+                    paidDate
+                    nextDate
+                }
+            }
+        }
+    }
+`
+
+const FETCH_ONE_EXPENSES = gql`
+    query FetchExpenses($title: String) {
+        fetchExpenses(title: $title) {
+            success
+            data {
+                title
+                type
+                frequency
+                amount
+                startDate
+                endDate
+                _id
+                reports {
+                    _id
+                }
+            }
+        }
+    }
+`
+
+export function useCallBank() {
     const [
         createReport,
         {
@@ -63,8 +126,20 @@ export function useCallBank(props) {
             error: createExpensesError,
         },
     ] = useMutation(CREATE_EXPENSES)
+    const {
+        loading: fetchExpensesLoader,
+        error: fetchExpensesError,
+        data: fetchExpensesData,
+        refetch: fetchExpensesCall,
+    } = useQuery(FETCH_EXPENSES)
+    const {
+        loading: fetchOneExpensesLoader,
+        error: fetchOneExpensesError,
+        data: fetchOneExpensesData,
+        refetch: fetchOneExpensesCall,
+    } = useQuery(FETCH_ONE_EXPENSES)
 
-    return {
+    const res = {
         CREATE_REPORT: {
             createReport,
             res: {
@@ -89,5 +164,22 @@ export function useCallBank(props) {
                 error: createExpensesError,
             },
         },
+        FETCH_EXPENSES: {
+            fetchExpensesCall,
+            res: {
+                loading: fetchExpensesLoader,
+                error: fetchExpensesError,
+                data: fetchExpensesData,
+            },
+        },
+        FETCH_ONE_EXPENSE: {
+            fetchOneExpensesCall,
+            res: {
+                loading: fetchOneExpensesLoader,
+                error: fetchOneExpensesError,
+                data: fetchOneExpensesData,
+            },
+        },
     }
+    return res
 }

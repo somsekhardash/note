@@ -1,0 +1,16 @@
+.App {
+    text-align: center;
+}
+
+.App-button {
+    background-color: black;
+    color: white;
+    margin: 20px;
+    width: 500px;
+    padding: 20px;
+    border-radius: 20px;
+}
+
+.admin-form {
+    width: 100%;
+}

@@ -8,18 +8,18 @@ import { useCallBank } from './../../CallBank'
 const Form = withTheme(SemanticUITheme)
 
 export function CreateExpense() {
-    const { CREATE_EXPENSE } = useCallBank()
+    const { CREATE_EXPENSES } = useCallBank()
     const expenseSchema = getExpenseSchema({ expType, frequencyType })
     const makeTheCall = (e) => {
-        CREATE_EXPENSE.createExpenses({
+        CREATE_EXPENSES.createExpenses({
             variables: {
                 expensesInput: e.formData,
             },
         })
     }
 
-    if (CREATE_EXPENSE.res.loading) return <p>Loading...</p>
-    if (CREATE_EXPENSE.res.error) return <p className="error">...Error...</p>
+    if (CREATE_EXPENSES?.res?.loading) return <p>Loading...</p>
+    if (CREATE_EXPENSES?.res?.error) return <p className="error">...Error...</p>
 
     return (
         <Form

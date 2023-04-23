@@ -48,11 +48,7 @@ export const LoginPage = () => {
             cookie.createCookie()
             navigate('/dashboard')
         }
-    }, [data])
-
-    React.useEffect(() => {
-        console.log(isAuthenticated)
-    }, [isAuthenticated])
+    }, [data, navigate])
 
     if (loading) return <h2>Loading..</h2>
 

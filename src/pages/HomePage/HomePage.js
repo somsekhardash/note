@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types'
-import React, { Component } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
     Button,
     Container,
@@ -11,6 +11,9 @@ import {
 import { Link, Outlet } from 'react-router-dom'
 import { useAuth0 } from '@auth0/auth0-react'
 import { HomePageWrapper } from './style'
+import { useQuery } from '@apollo/client'
+import { Fetch_Reports, Fetch_Expenses } from './../../Querys'
+import { AppContext } from './../../Reducer'
 
 const HomepageHeading = ({ mobile }) => (
     <Container text>
@@ -49,6 +52,48 @@ HomepageHeading.propTypes = {
 function DesktopContainer() {
     const fixed = true
     const { loginWithRedirect } = useAuth0()
+    const { fetchExpenses, fetchReports, today } = React.useContext(AppContext)
+    const {
+        loading: fetchReportsLoader,
+        error: fetchReportsError,
+        data: fetchReportsData,
+        refetch: plzFetchReports,
+    } = useQuery(Fetch_Reports, {
+        variables: {
+            month: (new Date().getUTCMonth() + 1).toString(),
+            year: new Date().getFullYear().toString(),
+        },
+        notifyOnNetworkStatusChange: true,
+    })
+
+    useEffect(() => {
+        if (today) {
+            plzFetchReports({
+                month: (new Date(today).getUTCMonth() + 1).toString(),
+                year: new Date(today).getFullYear().toString(),
+            })
+        }
+    }, [today])
+
+    const {
+        loading: fetchExpensesLoader,
+        error: fetchExpensesError,
+        data: fetchExpensesData,
+    } = useQuery(Fetch_Expenses, {
+        variables: {},
+        notifyOnNetworkStatusChange: true,
+    })
+
+    const expensesData = fetchExpensesData?.fetchExpenses?.data
+    const reportsData = fetchReportsData?.fetchReports?.data
+
+    useEffect(() => {
+        if (expensesData) fetchExpenses(expensesData)
+    }, [expensesData])
+
+    useEffect(() => {
+        if (reportsData) fetchReports(reportsData)
+    }, [reportsData])
 
     return (
         <HomePageWrapper>

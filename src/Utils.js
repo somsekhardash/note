@@ -1,7 +1,8 @@
 import moment from 'moment'
 
 export const dateFormater = (date) => {
-    return new Date(parseInt(date)).toLocaleDateString('en-US')
+    var options = { year: 'numeric', month: 'long', day: 'numeric' }
+    return new Date(parseInt(date)).toLocaleDateString('en-US', options)
 }
 
 export const isEmpty = (value) => {

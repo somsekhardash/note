@@ -77,7 +77,7 @@ function SaveOrSubmit({
             onOpen={() => showModal(true)}
             open={show}
         >
-            <Modal.Header>Report Form</Modal.Header>
+            <Modal.Header>{`${type} Report`}</Modal.Header>
             <Modal.Content image>
                 <Form
                     className="admin-form report-create"

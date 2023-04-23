@@ -56,6 +56,14 @@ export const Fetch_Expenses = gql`
                 startDate
                 endDate
                 _id
+                reports {
+                    description
+                    title
+                    amount
+                    _id
+                    paidDate
+                    nextDate
+                }
             }
         }
     }
@@ -66,7 +74,7 @@ export const reportSchema = ({
     expenses = [],
     report = {},
 }) => {
-    const selectedExp = expenses.find((exp) => exp._id === report.expenseId)
+    // const selectedExp = expenses.find((exp) => exp._id === report.expenseId)
     const todayDate = new Date()
     const dateAfterOneMonth = new Date(
         todayDate.getFullYear(),
