@@ -1,29 +1,3 @@
-# name: Node.js CI
-
-# on:
-#   push:
-#     branches: [ main ]
-#   pull_request:
-#     branches: [ main ]
-
-# jobs:
-#   build:
-
-#     runs-on: ubuntu-latest
-
-#     strategy:
-#       matrix:
-#         node-version: [14.x, 16.x, 18.x, 20.x]
-
-#     steps:
-#       - uses: actions/checkout@v3
-#       - name: Use Node.js ${{ matrix.node-version }}
-#         uses: actions/setup-node@v3
-#         with:
-#           node-version: ${{ matrix.node-version }}
-#       - run: node --version
-
-
 name: Tests
 on:
   pull_request:
@@ -33,7 +7,6 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}
 
-# we should make this a single job. It is very wasteful to spin up 3 separate instances that all do the same exact thing except for the last command. We can accomplish the same thing using a single job with multiple named steps.
 jobs:
   test:
     runs-on: ubuntu-latest
