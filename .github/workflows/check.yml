@@ -1,5 +1,7 @@
+---
 name: Check
-on: [push]
+on:
+  - push
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -7,4 +9,3 @@ jobs:
     steps:
       - run: node --version
       - run: npm --version
-   
