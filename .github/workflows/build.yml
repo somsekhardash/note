@@ -1,11 +1,5 @@
-on: push
+on: [push]
 jobs:
-  build-node:
-    runs-on: ubuntu-latest
-    container: node:14
-    steps:
-      - run: node --version
-      - run: npm --version
   publish:
     runs-on: ubuntu-latest
     permissions:
@@ -15,7 +9,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-
+      - run: node --version
+      - run: npm --version
       - name: Publish to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
@@ -24,7 +19,7 @@ jobs:
           projectName: note
           directory: build
           # Optional: Enable this if you want to have GitHub Deployments triggered
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          # gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           # Optional: Switch what branch you are publishing to.
           # By default this will be the branch which triggered this workflow
           branch: main
