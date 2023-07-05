@@ -1,24 +1,24 @@
----
-name: Publish
-on:
-  - push
-jobs:
-  publish:
-    runs-on: ${{ fromJSON('["ubuntu-latest", "self-hosted"]')[github.repository == 'github/docs-internal'] }}
-    permissions:
-      contents: read
-      deployments: write
-    name: Publish to Cloudflare Pages
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - run: node --version
-      - run: npm --version
-      - name: Publish to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
-        with:
-          apiToken: 71fd2387bc4a4848151bdba5ee0190751a1db
-          accountId: ad2b4273befbc58b530de1c62fc64614
-          projectName: note
-          directory: build
-          branch: main
+# ---
+# name: Publish
+# on:
+#   - push
+# jobs:
+#   publish:
+#     runs-on: ${{ fromJSON('["ubuntu-latest", "self-hosted"]')[github.repository == 'github/docs-internal'] }}
+#     permissions:
+#       contents: read
+#       deployments: write
+#     name: Publish to Cloudflare Pages
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v3
+#       - run: node --version
+#       - run: npm --version
+#       - name: Publish to Cloudflare Pages
+#         uses: cloudflare/pages-action@v1
+#         with:
+#           apiToken: 71fd2387bc4a4848151bdba5ee0190751a1db
+#           accountId: ad2b4273befbc58b530de1c62fc64614
+#           projectName: note
+#           directory: build
+#           branch: main
