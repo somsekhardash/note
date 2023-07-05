@@ -19,7 +19,7 @@ jobs:
       - name: Publish to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
-          apiToken: 71fd2387bc4a4848151bdba5ee0190751a1db
+          apiToken: lm7-eBETEFK96eZ9GP7RtQPRv3zGosIu_uI4SaDu
           accountId: ad2b4273befbc58b530de1c62fc64614
           projectName: note
           directory: build
