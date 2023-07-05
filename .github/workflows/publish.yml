@@ -22,7 +22,7 @@ jobs:
           apiToken: lm7-eBETEFK96eZ9GP7RtQPRv3zGosIu_uI4SaDu
           accountId: ad2b4273befbc58b530de1c62fc64614
           projectName: note
-          directory: build
+          directory: /build
           # Optional: Enable this if you want to have GitHub Deployments triggered
           # gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           # Optional: Switch what branch you are publishing to.
