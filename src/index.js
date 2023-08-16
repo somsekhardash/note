@@ -10,7 +10,7 @@ import {
     gql,
 } from '@apollo/client'
 import { RouteConfigExample } from './route'
-import { BrowserRouter as Router } from 'react-router-dom'
+import { HashRouter as Router } from 'react-router-dom'
 import { setContext } from '@apollo/client/link/context'
 import { CookieMaker } from './Utils'
 import { Auth0Provider } from '@auth0/auth0-react'

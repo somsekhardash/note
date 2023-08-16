@@ -1,6 +1,7 @@
 {
     "name": "reactjs",
     "version": "0.1.0",
+    "homepage": "http://somsekhardash.github.io/note",
     "private": true,
     "dependencies": {
         "@apollo/client": "^3.6.9",
@@ -26,6 +27,7 @@
         "@testing-library/user-event": "^13.5.0",
         "@tremor/react": "^2.1.0",
         "axios": "^0.26.0",
+        "date-fns": "^2.30.0",
         "dotenv": "^16.0.3",
         "fomantic-ui-css": "^2.8.8",
         "graphql": "^16.6.0",
@@ -51,7 +53,9 @@
         "build": "react-scripts build",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
-        "prepare": "husky install"
+        "prepare": "husky install",
+        "predeploy": "npm run build",
+        "deploy": "gh-pages -d dist"
     },
     "eslintConfig": {
         "extends": [
